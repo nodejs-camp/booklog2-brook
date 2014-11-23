@@ -48,6 +48,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+//Middleware
+
+app.get('/1/post', function(req,res, next){
+    console.log('middleware');
+    next();
+});
 
 app.get('/1/post', posts.list);
 app.post('/1/post', posts.create);
