@@ -9,6 +9,7 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 //Include Modules
 var posts = require('./routes/posts');
+var http = require('http');
 
 
 var app = express();
@@ -27,6 +28,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/users', users);
+
+app.get('/1/post', posts.list);
+app.post('/1/post', posts.create);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -59,8 +63,10 @@ app.use(function(err, req, res, next) {
     });
 });
 
-app.get('/1/post', posts.list);
-app.post('/1/post', posts.create);
 
+
+http.createServer(app).listen(3000, function(){
+    console.log('Express server running...');
+});
 
 module.exports = app;
