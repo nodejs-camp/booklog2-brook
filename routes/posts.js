@@ -1,16 +1,16 @@
-
-var post = [{
-	"title": "您好",
-	"content": "今天星期天"
-
-},
-{
-	"title": "Hello",
-	"content": "Today is Sunday"
-}];
-
 exports.list = function(req, res){
-	res.send(post);
+	var model = req.app.db.model.Post;
+
+  	var model = req.app.db.model.Post;
+	
+  	model
+  		.find({})
+  		.exec(function(err, posts) {
+		  	res.send({
+		  		posts: posts
+		  	});
+		  	res.end();
+  		});
 };
 
 exports.create = function(req, res){
