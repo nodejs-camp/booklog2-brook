@@ -19,9 +19,20 @@ exports.create = function(req, res){
 	var title = req.query.title;
 	var content = req.query.content;
 
-	workflow.on('validation', function() {
+	workflow.outcome = {
+		success: false,
+		errfor: {}
+	};
 
-		if (hasError) workflow.emit('response');
+	workflow.on('validation', function() {
+		if (title.length === 0) 
+			workflow.outcome.errfor.title = '這是必填欄位';
+
+		if (content.length === 0) 
+			workflow.outcome.errfor.content = '這是必填欄位';
+
+		if (Object.keys(workflow.outcome.errfor).length !== 0)
+			return workflow.emit('response');
 
 		workflow.emit('savePost');
 	});
@@ -33,9 +44,14 @@ exports.create = function(req, res){
 		});
 		post.save();
 
+		workflow.outcome.success = true;
+
 		workflow.emit('response');
 	});
 
 	workflow.on('response', function() {
+		res.send(workflow.outcome);
 	});
+
+	workflow.emit('validation');
 };
