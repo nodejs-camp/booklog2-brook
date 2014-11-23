@@ -1,7 +1,5 @@
 exports.list = function(req, res){
 	var model = req.app.db.model.Post;
-
-  	var model = req.app.db.model.Post;
 	
   	model
   		.find({})
@@ -14,4 +12,15 @@ exports.list = function(req, res){
 };
 
 exports.create = function(req, res){
+	var model = req.app.db.model.Post;
+	var title = req.query.title;
+	var content = req.query.content;
+
+	var post = new model({
+		title: title,
+		content: content
+	});
+	post.save();
+
+	res.send({status: 'OK'});
 };
