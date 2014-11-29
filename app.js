@@ -78,7 +78,7 @@ passport.use(new FacebookStrategy({
     callbackURL: "http://localhost:3000/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
-   app.db.users.findOne({"facebook._json.id": profile._json.id}, function(err, user) {
+   app.db.model.User.findOne({"facebook._json.id": profile._json.id}, function(err, user) {
         if (!user) {
           var obj = {
             username: profile.username,
@@ -87,11 +87,14 @@ passport.use(new FacebookStrategy({
             facebook: profile
            };
 
-           var doc = new app.db.users(obj);
+           var doc = new app.db.model.User(obj);
            doc.save();
 
            user = doc;
+        } else{
+            console.log("exist");
         }
+
 
         return done(null, user); // verify
    });
