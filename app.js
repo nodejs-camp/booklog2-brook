@@ -12,6 +12,10 @@ var posts = require('./routes/posts');
 var http = require('http');
 var mongoose = require('mongoose');
 
+//import passport and facebookstrategy
+var passport = require('passport')
+    , FacebookStrategy = require('passport-facebook').Strategy;
+
 
 var app = express();
 
@@ -46,17 +50,55 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//passport-facebook
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+
+passport.use(new FacebookStrategy({
+    clientID: '386859244810267',
+    clientSecret: '41e0ef2dbfc12b7e997405513e24c3df',
+    callbackURL: "http://localhost:3000/auth/facebook/callback"
+  },
+  function(accessToken, refreshToken, profile, done) {
+    console.log(profile);
+    return done(null, profile);
+  }
+));
+
+
+
+
+
 app.use('/', routes);
 app.use('/users', users);
-//Middleware
 
-app.get('/1/post', function(req,res, next){
-    console.log('middleware');
-    next();
-});
+
+
+//Middleware
+// app.get('/1/post', function(req,res, next){
+//     console.log('middleware');
+//     next();
+// });
+
 
 app.get('/1/post', posts.list);
 app.post('/1/post', posts.create);
+
+
+//Passport
+app.get('/login', passport.authenticate('facebook'));
+app.get('/auth/facebook/callback', 
+  passport.authenticate('facebook', { successRedirect: '/',
+                                      failureRedirect: '/login/fail' }));
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
