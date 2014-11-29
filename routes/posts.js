@@ -20,7 +20,7 @@ exports.create = function(req, res){
 	var content = req.body.content;
 
 	//console.log(req.body);
-	console.log("req.user: "+req.user);
+	console.log("req.user: "+ JSON.stringify(req.user));
 
 	workflow.outcome = {
 		success: false,

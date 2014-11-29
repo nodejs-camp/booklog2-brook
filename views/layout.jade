@@ -20,8 +20,13 @@ html
                     li
                       a(href='#') Contact
                     li
-                      a(href='/logout')
-                          span.fa.fa-facebook-square &nbsp;Logout
+                      if user
+                        a(href='/logout')
+                            span.fa.fa-facebook-square &nbsp;Logout
+                      else
+                        a(href='/login')
+                            span.fa.fa-facebook-square &nbsp;Login
+
 
         block content
 

@@ -15,6 +15,7 @@ var mongoose = require('mongoose');
 //import passport and facebookstrategy
 var passport = require('passport')
     , FacebookStrategy = require('passport-facebook').Strategy;
+var session = require('express-session');
 
 
 var app = express();
@@ -59,6 +60,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+// express-session
+app.use(session({ secret: 'booklog2-brook' }));
+
 
 //passport-facebook
 app.use(passport.initialize());
@@ -102,8 +106,11 @@ passport.use(new FacebookStrategy({
   }
 ));
 
-
-
+//res.locals 搭配jade
+app.use(function(req, res, next){
+  res.locals.user = req.user;
+  next();
+});
 
 
 app.use('/', routes);
@@ -118,9 +125,9 @@ app.use('/users', users);
 // });
 
 
+
 app.get('/1/post', posts.list);
 app.post('/1/post', posts.create);
-
 
 //Passport
 app.get('/login', passport.authenticate('facebook'));
