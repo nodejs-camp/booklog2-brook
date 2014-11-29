@@ -1,5 +1,62 @@
 extends layout
 
+block feet
+  script(src='/views/index.js')
+
 block content
-  h1= title
-  p Welcome to #{title}
+    .container(style='margin-top: 100px;')
+        .row
+            .col-lg-8
+              div#blog-post
+            .col-md-4
+              .well#search-section
+                h4 Author Search
+                .input-group
+                  input.form-control#search-tag(type='text')
+                  span.input-group-btn
+                    button.btn.btn-default.btn-search(type='button')
+                      span.glyphicon.glyphicon-search
+              .well#search-result
+        .row#form-section
+
+    script(type='text/template', id='tmpl-post')
+      div#actions
+        .btn-group
+          button.btn.btn-primary.btn-filter 日期排序
+          button.btn.btn-primary.btn-format 日期格式
+      <% _.each(posts, function(post) { %>
+      .well(style='margin-top: 20px;')
+        h1 <%= post.subject %>
+        <% if (post.orders.length === 0) { %>
+        button.btn.btn-default(data-purchase-for!='<%= post._id %>') 購買全文
+        <% } else { %>
+        a.btn.btn-danger(href!='<%= post.orders[0].paypal.links[1].href %>', target='_blank') 線上付款
+        <% } %>
+        p.lead
+          | by
+          | &nbsp;<%= post.userId.facebook.displayName %>
+        p
+          span.glyphicon.glyphicon-time
+          | Posted on 
+          span.post-date <%= post.userId.timeCreated %>
+      <% }); %>
+
+    script(type='text/template', id='tmpl-results')
+      h4 Search Result
+      <% _.each(posts, function(post) { %>
+      p <%= post.subject %>
+      <% }); %>
+
+    script(type='text/template', id='tmpl-form')
+      form.form-horizontal
+        h3 Leave a Message
+        .form-group(class!='<%= errfor.subject ? "has-error" : "" %>')
+          label.control-label(for='subject') Subject
+          input.form-control#subject(name='subject', type='text')
+          label.has-error.control-label.pull-right <%= errfor.subject %>
+        .form-group(class!='<%= errfor.content ? "has-error" : "" %>')
+          label.control-label(for='subject') Content
+          textarea.form-control#content(name='content')
+          label.has-error.control-label.pull-right <%= errfor.content %>
+        .form-group
+          button#btn-submit.btn.btn-primary(name='btn-submit') Save
