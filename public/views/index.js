@@ -90,7 +90,11 @@ app.PurchasePost = Backbone.Model.extend({
     preventSubmit: function(event) {
         event.preventDefault();
     },
-    performSubmit: function() {
+    performSubmit: function(event) {
+      //Important
+      event.preventDefault();
+
+
       var subject = this.$el.find('#subject').val();
       var content = this.$el.find('#content').val();
 

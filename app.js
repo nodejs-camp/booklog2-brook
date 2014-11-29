@@ -28,7 +28,7 @@ db.once('open', function callback () {
 });
 
 var postSchema = new mongoose.Schema({
-    title: String,
+    subject: String,
     content: String
 });
 
@@ -93,6 +93,7 @@ passport.use(new FacebookStrategy({
            user = doc;
         } else{
             console.log("exist");
+            //console.log(profile);
         }
 
 

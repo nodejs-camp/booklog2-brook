@@ -16,8 +16,11 @@ exports.list = function(req, res){
 exports.create = function(req, res){
 	var workflow = new events.EventEmitter();
 	var model = req.app.db.model.Post;
-	var title = req.query.title;
-	var content = req.query.content;
+	var subject = req.body.subject;
+	var content = req.body.content;
+
+	//console.log(req.body);
+	console.log("req.user: "+req.user);
 
 	workflow.outcome = {
 		success: false,
@@ -25,8 +28,8 @@ exports.create = function(req, res){
 	};
 
 	workflow.on('validation', function() {
-		if (title.length === 0) 
-			workflow.outcome.errfor.title = '這是必填欄位';
+		if (subject.length === 0) 
+			workflow.outcome.errfor.subject = '這是必填欄位';
 
 		if (content.length === 0) 
 			workflow.outcome.errfor.content = '這是必填欄位';
@@ -39,7 +42,7 @@ exports.create = function(req, res){
 
 	workflow.on('savePost', function() {
 		var post = new model({
-			title: title,
+			subject: subject,
 			content: content
 		});
 		post.save();
