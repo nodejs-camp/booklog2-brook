@@ -32,9 +32,19 @@ var postSchema = new mongoose.Schema({
     content: String
 });
 
+var userSchema = new mongoose.Schema({
+    username: { type: String, unique: true },
+    displayName: { type: String, unique: true },
+    email: { type: String, unique: true },
+    timeCreated: { type: Date, default: Date.now },
+    facebook: {}
+});
+
+
 app.db = {
     model: {
         Post: mongoose.model('post', postSchema),
+        User: mongoose.model('User', userSchema)
     }
 };
 
@@ -68,8 +78,23 @@ passport.use(new FacebookStrategy({
     callbackURL: "http://localhost:3000/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
-    console.log(profile);
-    return done(null, profile);
+   app.db.users.findOne({"facebook._json.id": profile._json.id}, function(err, user) {
+        if (!user) {
+          var obj = {
+            username: profile.username,
+            displayName: profile.displayName,
+            email: '',
+            facebook: profile
+           };
+
+           var doc = new app.db.users(obj);
+           doc.save();
+
+           user = doc;
+        }
+
+        return done(null, user); // verify
+   });
   }
 ));
 
@@ -95,6 +120,7 @@ app.post('/1/post', posts.create);
 
 //Passport
 app.get('/login', passport.authenticate('facebook'));
+
 app.get('/auth/facebook/callback', 
   passport.authenticate('facebook', { successRedirect: '/',
                                       failureRedirect: '/login/fail' }));
