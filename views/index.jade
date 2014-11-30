@@ -30,6 +30,7 @@ block content
       .well(style='margin-top: 20px;')
         h1 <%= post.subject %>
         h2 作者：<%= post.userId.displayName %>
+        p 字數: <%= post.wchars %>
       <% }); %>
 
     script(type='text/template', id='tmpl-results')

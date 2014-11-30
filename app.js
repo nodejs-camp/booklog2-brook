@@ -46,6 +46,9 @@ postSchema.index({subject:1});
 postSchema.index({subject:"text"});
 postSchema.index({content:"text"});
 
+postSchema.plugin(require('./schema/countPlugin'));
+
+
 
 
 app.db = {

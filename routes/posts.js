@@ -11,9 +11,15 @@ exports.list = function(req, res){
   		])
   		.exec(function(err, posts) {
   			req.app.db.model.Post.populate(posts, {path: 'userId'}, function() {
+
+  				for (i = 0; i < posts.length; i++) {
+  					posts[i].wchars = req.app.db.model.Post.count(posts[i].content);
+  				}
+
 			  	res.send({
 			  		posts: posts
 			  	});
+
 			  	res.end();
   			});
   		});
