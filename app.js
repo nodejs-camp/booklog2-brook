@@ -106,7 +106,7 @@ passport.use(new FacebookStrategy({
   }
 ));
 
-//res.locals 搭配jade
+//res.locals 搭配jade middleware
 app.use(function(req, res, next){
   res.locals.user = req.user;
   next();
@@ -127,7 +127,11 @@ app.use('/users', users);
 
 
 app.get('/1/post', posts.list);
+app.get('/1/post/:tag', posts.listByTag);
 app.post('/1/post', posts.create);
+
+
+
 
 //Passport
 app.get('/login', passport.authenticate('facebook'));
@@ -136,6 +140,11 @@ app.get('/auth/facebook/callback',
   passport.authenticate('facebook', { successRedirect: '/',
                                       failureRedirect: '/login/fail' }));
 
+app.get('/logout', function(req, res){
+  req.logout();
+  console.log('logout');
+  res.redirect('/');
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

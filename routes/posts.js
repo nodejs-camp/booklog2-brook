@@ -13,6 +13,22 @@ exports.list = function(req, res){
   		});
 };
 
+
+exports.listByTag = function(req, res){
+	var model = req.app.db.model.Post;
+	var tag = req.params.tag;
+
+  	model
+  		.find({subject:tag})
+  		.exec(function(err, posts) {
+		  	res.send({
+		  		posts: posts
+		  	});
+		  	res.end();
+  		});
+};
+
+
 exports.create = function(req, res){
 	var workflow = new events.EventEmitter();
 	var model = req.app.db.model.Post;
