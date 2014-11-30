@@ -29,6 +29,7 @@ db.once('open', function callback () {
 });
 
 var postSchema = new mongoose.Schema({
+    userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     subject: String,
     content: String
 });
@@ -40,6 +41,11 @@ var userSchema = new mongoose.Schema({
     timeCreated: { type: Date, default: Date.now },
     facebook: {}
 });
+
+postSchema.index({subject:1});
+postSchema.index({subject:"text"});
+postSchema.index({content:"text"});
+
 
 
 app.db = {

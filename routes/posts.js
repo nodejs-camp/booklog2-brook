@@ -5,6 +5,7 @@ exports.list = function(req, res){
 	
   	model
   		.find({})
+  		.populate('userId')
   		.exec(function(err, posts) {
 		  	res.send({
 		  		posts: posts
@@ -19,7 +20,9 @@ exports.listByTag = function(req, res){
 	var tag = req.params.tag;
 
   	model
-  		.find({subject:tag})
+  		//.find( {title: tag} )
+  		.find({ $text: { $search: tag})
+  		.populate('userId')
   		.exec(function(err, posts) {
 		  	res.send({
 		  		posts: posts
@@ -34,6 +37,7 @@ exports.create = function(req, res){
 	var model = req.app.db.model.Post;
 	var subject = req.body.subject;
 	var content = req.body.content;
+	var userId = req.user._id;
 
 	//console.log(req.body);
 	console.log("req.user: "+ JSON.stringify(req.user));
@@ -58,6 +62,7 @@ exports.create = function(req, res){
 
 	workflow.on('savePost', function() {
 		var post = new model({
+			userId: userId,
 			subject: subject,
 			content: content
 		});

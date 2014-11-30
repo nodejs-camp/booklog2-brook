@@ -29,6 +29,7 @@ block content
       <% _.each(posts, function(post) { %>
       .well(style='margin-top: 20px;')
         h1 <%= post.subject %>
+        h2 作者：<%= post.userId.displayName %>
       <% }); %>
 
     script(type='text/template', id='tmpl-results')
