@@ -2,15 +2,20 @@ var events = require('events');
 
 exports.list = function(req, res){
 	var model = req.app.db.model.Post;
-	
+
   	model
-  		.find({})
-  		.populate('userId')
+  		.aggregate([
+            {
+                $project: { _id: 1, subject: 1, content: 1, userId: 1 }
+            }
+  		])
   		.exec(function(err, posts) {
-		  	res.send({
-		  		posts: posts
-		  	});
-		  	res.end();
+  			req.app.db.model.Post.populate(posts, {path: 'userId'}, function() {
+			  	res.send({
+			  		posts: posts
+			  	});
+			  	res.end();
+  			});
   		});
 };
 
@@ -20,8 +25,8 @@ exports.listByTag = function(req, res){
 	var tag = req.params.tag;
 
   	model
-  		//.find( {title: tag} )
-  		.find({ $text: { $search: tag})
+  	  //.find( { subject: tag } )
+  		.find( { $text: { $search: tag } })
   		.populate('userId')
   		.exec(function(err, posts) {
 		  	res.send({

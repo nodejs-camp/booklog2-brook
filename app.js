@@ -35,11 +35,11 @@ var postSchema = new mongoose.Schema({
 });
 
 var userSchema = new mongoose.Schema({
-    username: { type: String, unique: true },
+    username: { type: String, unique: true, select: false  },
     displayName: { type: String, unique: true },
-    email: { type: String, unique: true },
-    timeCreated: { type: Date, default: Date.now },
-    facebook: {}
+    email: { type: String, unique: true, select: false  },
+    timeCreated: { type: Date, default: Date.now, select: false },
+    facebook: { type: Object, select: false } 
 });
 
 postSchema.index({subject:1});
