@@ -105,6 +105,34 @@ app.PurchasePost = Backbone.Model.extend({
     }
   });
 
+
+  app.QueryView = Backbone.View.extend({
+    el: '#search-section', //logic view的 View =>index.jade(view)
+    events: {
+      'click .btn-search': 'performSearch'
+    },
+    initialize: function() {
+        this.template = _.template($('#tmpl-query').html());
+        this.render();
+    },
+    render: function() {
+        var data = this.template();
+
+        this.$el.html(data);
+        return this;
+    },
+    performSearch: function() {
+      var query = this.$el.find('#search-tag').val();
+
+      app.postView.model.query = '/'+query;
+      app.postView.model.fetch();
+    }
+  });
+
+
+
+
+
   app.SearchView = Backbone.View.extend({
     el: '#search-section',
     events: {
@@ -187,6 +215,8 @@ app.PurchasePost = Backbone.Model.extend({
  **/
   $(document).ready(function() {
     app.postView = new app.PostView();
-    app.searchView = new app.SearchView();
+    //app.searchView = new app.SearchView();
     app.formView = new app.FormView();
+    app.queryView = new app.QueryView();
+
   });
