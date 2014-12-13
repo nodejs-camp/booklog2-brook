@@ -9,7 +9,7 @@ var config_opts = {
     'host': 'api.sandbox.paypal.com',
     'port': '',
     'client_id': 'AZmz8hA7zsgE3K0RWwJQZhJidC1WMXWXhfp36D5URJT0rGAWyS6r4XOO4mYd',
-    'client_secret': 'EJ0oixCMhJrWRyfQSusRTBNrTwU7NW2IuL5EnbdqVypIak6V'
+    'client_secret': 'EJ0oixCMhJrWRyfQSusRTBNrTwU7NW2IuL5EnbdqVypIak6V-VSnXUBVTXEi'
 };
 
 router.put('/1/post/:postId/pay', function(req, res, next) {
@@ -57,10 +57,24 @@ router.put('/1/post/:postId/pay', function(req, res, next) {
 		        console.log("Create Payment Response");
 		        console.log(payment);
 		    }
+
+		    var orders = {
+		    	userId: req.user._id,
+		    	paypal: payment
+		    };
+
+			posts
+			.findByIdAndUpdate(postId, { $addToSet: { orders: order } }, function(err, post) {
+				workflow.outcome.success = true;
+				workflow.outcome.data = post;
+				
+				workflow.emit('response');
+			});
 		});
     });
 
     workflow.on('response', function() {
+    	return res.send(workflow.outcome);
     });
 
     return workflow.emit('validate');

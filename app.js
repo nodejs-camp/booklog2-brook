@@ -29,9 +29,16 @@ db.once('open', function callback () {
 });
 
 var postSchema = new mongoose.Schema({
-    userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    subject: String,
-    content: String
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    title: String,
+    content: String,
+    wchars: { type: Number, default: 0 },
+
+    /* PayPal payments */
+    orders: [{
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      paypal: { type: Object, select: false } 
+    }],
 });
 
 var userSchema = new mongoose.Schema({
@@ -41,6 +48,7 @@ var userSchema = new mongoose.Schema({
     timeCreated: { type: Date, default: Date.now, select: false },
     facebook: { type: Object, select: false } 
 });
+
 
 postSchema.index({subject:1});
 postSchema.index({subject:"text"});
