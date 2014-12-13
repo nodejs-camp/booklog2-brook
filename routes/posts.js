@@ -49,6 +49,7 @@ exports.create = function(req, res){
 	var subject = req.body.subject;
 	var content = req.body.content;
 	var userId = req.user._id;
+	//var wchars = req.app.db.model.Post.wchars;
 
 	//console.log(req.body);
 	console.log("req.user: "+ JSON.stringify(req.user));

@@ -17,7 +17,7 @@ var passport = require('passport')
     , FacebookStrategy = require('passport-facebook').Strategy;
 var session = require('express-session');
 
-
+var paypal = require('./routes/paypal');
 var app = express();
 
 mongoose.connect('mongodb://localhost/booklog2');
@@ -125,7 +125,7 @@ app.use(function(req, res, next){
 app.use('/', routes);
 app.use('/users', users);
 
-
+app.use(paypal);
 
 //Middleware
 // app.get('/1/post', function(req,res, next){
