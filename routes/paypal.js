@@ -85,4 +85,65 @@ router.put('/1/post/:postId/pay', function(req, res, next) {
     return workflow.emit('validate');
 });
 
+router.get('/1/post/:postId/paid', function(req, res, next) {
+    var workflow = new events.EventEmitter();
+    var postId = req.params.postId;
+	var posts = req.app.db.model.Post;
+    var payerId = req.query.PayerID;
+    var paymentId;
+    
+    workflow.outcome = {
+    	success: false
+    };
+
+    workflow.on('validate', function() {
+    	posts
+    	.findOne({ _id: postId})
+    	.exec(function(err, post) {
+		    if (err) {
+		        workflow.outcome.data = { error_description: err };
+		        return workflow.emit('response');
+		    }
+
+		    if (!post) {
+		    	/* product not exist */
+		    	workflow.outcome.data = { error_description: 'product not exist' };
+			    return workflow.emit('response');
+		    }
+
+		    workflow.paymentId = post.orders[0].paypal.id;
+
+            workflow.emit('executePayment');
+    	});
+    });
+
+    workflow.on('executePayment', function() {
+		paypal_api.configure(config_opts);
+		
+        paypal_api.payment.execute(workflow.paymentId, { payer_id: payerId }, function (err, payment) {
+		    if (err) {
+		        workflow.outcome.data = { error_description: err };
+		        return workflow.emit('response');
+		    }
+
+        	workflow.outcome.data = payment;
+            workflow.emit('updatePost');
+        });
+    });
+
+    workflow.on('updatePost', function() {
+		posts
+		.findByIdAndUpdate(postId, { $addToSet: { customers: req.user._id } }, function(err, post) {
+			workflow.outcome.success = true;
+			workflow.emit('response');
+		});
+    });
+
+    workflow.on('response', function() {
+    	return res.send(workflow.outcome);
+    });
+
+    return workflow.emit('validate');
+});
+
 module.exports = router;

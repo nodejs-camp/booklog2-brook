@@ -2,25 +2,24 @@ extends layout
 
 block feet
   script(src='/views/index.js')
-
 block content
     .container(style='margin-top: 100px;')
         .row
             .col-lg-8
               div#blog-post
             .col-md-4
-              .well#search-section
+              .well#search-section 
               .well#search-result
         .row#form-section
 
-    script(type='text/template', id='tmpl-query')
-      h4 Subject Search
-      .input-group
-        input.form-control#search-tag(type='text')
-        span.input-group-btn
-          button.btn.btn-default.btn-search(type='button')
-            span.glyphicon.glyphicon-search
-
+    script(type='text/template', id='tmpl-query')    
+        h4 Title Search
+          .input-group
+            input.form-control#search-tag(type='text')
+            span.input-group-btn
+              button.btn.btn-default.btn-search(type='button')
+                span.glyphicon.glyphicon-search  
+        
     script(type='text/template', id='tmpl-post')
       div#actions
         .btn-group
@@ -28,26 +27,32 @@ block content
           button.btn.btn-primary.btn-format 日期格式
       <% _.each(posts, function(post) { %>
       .well(style='margin-top: 20px;')
-        h1 <%= post.subject %>
-        h2 作者：<%= post.userId.displayName %>
-        p 字數: <%= post.wchars %>
+        h1 標題：<%= post.title %> 
+        h2 內文：<%= post.content %> 
+          span(style="font-size:14px") 中文字數(<%= post.wchars %>)
+        h3 作者：<%= post.userId.displayName %>
+        <% if (post.orders.length === 0) { %>
+        button.btn.btn-default(data-purchase-for!='<%= post._id %>') 購買全文
+        <% } else { %>
+        a.btn.btn-danger(href!='<%= post.orders[0].paypal.links[1].href %>', target='_blank') 購買全文
+        <% } %>
       <% }); %>
-
+    
     script(type='text/template', id='tmpl-results')
       h4 Search Result
       <% _.each(posts, function(post) { %>
-      p <%= post.subject %>
+      p <%= post.title %>
       <% }); %>
 
     script(type='text/template', id='tmpl-form')
       form.form-horizontal
         h3 Leave a Message
-        .form-group(class!='<%= errfor.subject ? "has-error" : "" %>')
-          label.control-label(for='subject') Subject
-          input.form-control#subject(name='subject', type='text')
-          label.has-error.control-label.pull-right <%= errfor.subject %>
+        .form-group(class!='<%= errfor.title ? "has-error" : "" %>')
+          label.control-label(for='title') title
+          input.form-control#title(name='title', type='text')
+          label.has-error.control-label.pull-right <%= errfor.title %>
         .form-group(class!='<%= errfor.content ? "has-error" : "" %>')
-          label.control-label(for='subject') Content
+          label.control-label(for='title') Content
           textarea.form-control#content(name='content')
           label.has-error.control-label.pull-right <%= errfor.content %>
         .form-group

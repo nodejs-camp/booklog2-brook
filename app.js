@@ -37,8 +37,9 @@ var postSchema = new mongoose.Schema({
     /* PayPal payments */
     orders: [{
       userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-      paypal: { type: Object, select: false } 
+      paypal: { type: Object, select: true } 
     }],
+    customers: [ { type: mongoose.Schema.Types.ObjectId, ref: 'User' } ]
 });
 
 var userSchema = new mongoose.Schema({
@@ -48,7 +49,6 @@ var userSchema = new mongoose.Schema({
     timeCreated: { type: Date, default: Date.now, select: false },
     facebook: { type: Object, select: false } 
 });
-
 
 postSchema.index({subject:1});
 postSchema.index({subject:"text"});

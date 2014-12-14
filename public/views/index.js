@@ -33,11 +33,11 @@ app.Post = Backbone.Model.extend({
     errors: [],
     errfor: {},
     
-  	posts: [{
-  	       "content": "hello",
-  	       "_id": "5402de2f559097cdf139fff9",
-  	       "subject": "abc123"
-  	   }]
+    posts: [{
+           "content": "hello",
+           "_id": "5402de2f559097cdf139fff9",
+           "subject": "abc123"
+       }]
   }
 });
 
@@ -161,7 +161,7 @@ app.PurchasePost = Backbone.Model.extend({
   });
 
   app.PostView = Backbone.View.extend({
-  	el: '#blog-post',
+    el: '#blog-post',
     events: {
       'click .btn-filter': 'performFilter',
       'click .btn-format': 'performFormat',

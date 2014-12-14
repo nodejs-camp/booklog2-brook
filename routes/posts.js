@@ -6,7 +6,7 @@ exports.list = function(req, res){
   	model
   		.aggregate([
             {
-                $project: { _id: 1, subject: 1, content: 1, userId: 1 }
+                $project: { _id: 1, subject: 1, content: 1, userId: 1, orders: 1 }
             }
   		])
   		.exec(function(err, posts) {
