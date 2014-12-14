@@ -4,20 +4,17 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-var routes = require('./routes/index');
-var users = require('./routes/users');
-//Include Modules
-var posts = require('./routes/posts');
 var http = require('http');
 var mongoose = require('mongoose');
-
-//import passport and facebookstrategy
 var passport = require('passport')
     , FacebookStrategy = require('passport-facebook').Strategy;
 var session = require('express-session');
 
+var routes = require('./routes/index');
+var users = require('./routes/users');
+var posts = require('./routes/posts');
 var paypal = require('./routes/paypal');
+
 var app = express();
 
 mongoose.connect('mongodb://localhost/booklog2');
@@ -50,14 +47,15 @@ var userSchema = new mongoose.Schema({
     facebook: { type: Object, select: false } 
 });
 
-postSchema.index({subject:1});
-postSchema.index({subject:"text"});
-postSchema.index({content:"text"});
+postSchema.index( { title: 1 } );
+postSchema.index( { title: "text" } );
+postSchema.index( { content: "text" } );
 
 postSchema.plugin(require('./schema/countPlugin'));
 
-
-
+postSchema.methods.sync = function() {
+  console.log('sync');
+}
 
 app.db = {
     model: {
@@ -77,11 +75,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-// express-session
-app.use(session({ secret: 'booklog2-brook' }));
 
+app.use(session({ secret: 'booklog store' }));
 
-//passport-facebook
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -112,56 +108,34 @@ passport.use(new FacebookStrategy({
            doc.save();
 
            user = doc;
-        } else{
-            console.log("exist");
-            //console.log(profile);
         }
-
 
         return done(null, user); // verify
    });
   }
 ));
 
-//res.locals 搭配jade middleware
-app.use(function(req, res, next){
-  res.locals.user = req.user;
-  next();
+app.use(function(req, res, next) {
+    res.locals.user = req.user;
+    next();
 });
-
 
 app.use('/', routes);
 app.use('/users', users);
 
+/** Paypal */
 app.use(paypal);
 
-//Middleware
-// app.get('/1/post', function(req,res, next){
-//     console.log('middleware');
-//     next();
-// });
-
-
-
+/** REST APIs */
 app.get('/1/post', posts.list);
 app.get('/1/post/:tag', posts.listByTag);
 app.post('/1/post', posts.create);
 
-
-
-
-//Passport
+/** Pages */
 app.get('/login', passport.authenticate('facebook'));
-
 app.get('/auth/facebook/callback', 
   passport.authenticate('facebook', { successRedirect: '/',
                                       failureRedirect: '/login/fail' }));
-
-app.get('/logout', function(req, res){
-  req.logout();
-  console.log('logout');
-  res.redirect('/');
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -194,10 +168,8 @@ app.use(function(err, req, res, next) {
     });
 });
 
-
-
 http.createServer(app).listen(3000, function(){
-    console.log('Express server running...');
+    console.log('Express server listening on port 3000');
 });
 
 module.exports = app;

@@ -49,7 +49,7 @@ app.SinglePost = Backbone.Model.extend({
     errfor: {},
 
     content: '',
-    subject: ''
+    title: ''
   }
 });
 
@@ -91,48 +91,19 @@ app.PurchasePost = Backbone.Model.extend({
         event.preventDefault();
     },
     performSubmit: function(event) {
-      //Important
       event.preventDefault();
 
-
-      var subject = this.$el.find('#subject').val();
+      var title = this.$el.find('#title').val();
       var content = this.$el.find('#content').val();
 
       this.model.save({
-        subject: subject,
+        title: title,
         content: content
       });
+
       app.postView.model.fetch();
     }
   });
-
-
-  app.QueryView = Backbone.View.extend({
-    el: '#search-section', //logic view的 View =>index.jade(view)
-    events: {
-      'click .btn-search': 'performSearch'
-    },
-    initialize: function() {
-        this.template = _.template($('#tmpl-query').html());
-        this.render();
-    },
-    render: function() {
-        var data = this.template();
-
-        this.$el.html(data);
-        return this;
-    },
-    performSearch: function() {
-      var query = this.$el.find('#search-tag').val();
-
-      app.postView.model.query = '/'+query;
-      app.postView.model.fetch();
-    }
-  });
-
-
-
-
 
   app.SearchView = Backbone.View.extend({
     el: '#search-section',
@@ -201,13 +172,37 @@ app.PurchasePost = Backbone.Model.extend({
         this.purchase.set('id', postId);
         this.purchase.save(this.model.attributes, {
           success: function(model, response, options) {
-            $.notify('訂購成功。等候付款！');
+            alert('訂購成功。等候付款！');
             self.model.fetch();
           },
           error: function(model, response, options) {
-            $.notify('失敗')
+            alert('失敗')
           }
         });
+    }
+  });
+
+  app.QueryView = Backbone.View.extend({
+    el: '#search-section',
+    events: {
+      'click .btn-search': 'performSearch',
+      'input #search-tag': 'performSearch'
+    },
+    initialize: function() {
+        this.template = _.template($('#tmpl-query').html());
+        this.render();
+    },
+    render: function() {
+        var data = this.template();
+
+        this.$el.html(data);
+        return this;
+    },
+    performSearch: function() {
+      var query = this.$el.find('#search-tag').val();
+
+      app.postView.model.query = '/' + query;
+      app.postView.model.fetch();
     }
   });
 
@@ -219,5 +214,4 @@ app.PurchasePost = Backbone.Model.extend({
     //app.searchView = new app.SearchView();
     app.formView = new app.FormView();
     app.queryView = new app.QueryView();
-
   });
