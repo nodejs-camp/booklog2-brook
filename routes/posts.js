@@ -13,7 +13,7 @@ exports.list = function(req, res){
         if (model) {
             return workflow.emit('aggregation');
         } else {
-            workflow.outcome.data = { error_description: 'their is no model' };
+            workflow.outcome.errfor = { error_description: 'their is no model' };
             return workflow.emit('response');
         }
     });
@@ -21,10 +21,10 @@ exports.list = function(req, res){
     workflow.on('aggregation',function(){
         model.aggregate([
             {
-                $project: { 
-                    _id : 1, 
-                    userId : 1, 
-                    title : 1, 
+                $project: {
+                    _id : 1,
+                    userId : 1,
+                    title : 1,
                     content : 1,
                     orders : 1,
                     customers : 1,
@@ -34,13 +34,19 @@ exports.list = function(req, res){
             }
         ])
         .exec(function(err, posts) {
-            workflow.posts = posts;
+            workflow.posts = posts;		//將post傳遞到workflow的全域變數
             workflow.emit('populate');
         });
     });
 
     workflow.on('populate',function(){
         model.populate(workflow.posts, {path: 'userId'}, function(err, posts) {
+
+        	if(err){
+            	workflow.outcome.errfor = { error_description: 'populate fail' };
+	            return workflow.emit('response');
+			}
+
             for ( i = 0; i < posts.length ; i++) {
                 posts[i].wchars = model.count(posts[i].content);
 
@@ -50,13 +56,12 @@ exports.list = function(req, res){
                     if (uid === req.user._id) posts[i].granted = true;
                 }
             }
-            
             workflow.outcome.posts = posts;
             workflow.outcome.success = true;
             return workflow.emit('response');
         });
     });
-    
+
     workflow.on('response',function(){
         res.send(workflow.outcome);
     });
