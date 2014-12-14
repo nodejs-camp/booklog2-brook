@@ -1,4 +1,6 @@
 var events = require('events');
+var async = require('async');
+
 
 exports.list = function(req, res){
 	var workflow = new events.EventEmitter();
@@ -35,32 +37,71 @@ exports.list = function(req, res){
         ])
         .exec(function(err, posts) {
             workflow.posts = posts;		//將post傳遞到workflow的全域變數
-            workflow.emit('populate');
+            //workflow.emit('populate');
+            //將populate狀態拆解  並用async改寫  同步執行populate wchars isGranted
+            //https://github.com/caolan/async
+            async.parallel([wchars, isgranted, populate], asyncFinally);
+
         });
     });
 
-    workflow.on('populate',function(){
+    var populate = function(callback) {
         model.populate(workflow.posts, {path: 'userId'}, function(err, posts) {
-
-        	if(err){
-            	workflow.outcome.errfor = { error_description: 'populate fail' };
-	            return workflow.emit('response');
-			}
-
-            for ( i = 0; i < posts.length ; i++) {
-                posts[i].wchars = model.count(posts[i].content);
-
-                var uid;
-                for (j = 0; j < posts[i].customers.length; j++) {
-                    uid = '' + posts[i].customers[j];
-                    if (uid === req.user._id) posts[i].granted = true;
-                }
+            if (err) {
+                callback(err, null);
             }
             workflow.outcome.posts = posts;
-            workflow.outcome.success = true;
-            return workflow.emit('response');
+            
+            return callback(null, 'done');
         });
-    });
+    }
+    
+    var wchars = function(callback){
+        for ( i = 0; i < workflow.posts.length ; i++) {
+            workflow.posts[i].wchars = model.count(workflow.posts[i].content);
+        }
+        return callback(null, 'done');
+    }
+    
+    var isgranted = function(callback){
+        for ( i = 0; i < workflow.posts.length ; i++) {
+            var uid;
+            for (j = 0; j < workflow.posts[i].customers.length; j++) {
+                uid = '' + workflow.posts[i].customers[j];
+                if (uid === req.user._id) workflow.posts[i].granted = true;
+            }
+        }
+        return callback(null, 'done');
+    }
+    
+    var asyncFinally = function (err, results){
+        workflow.outcome.success = true;
+        return workflow.emit('response');
+    }
+
+
+   //  workflow.on('populate',function(){
+   //      model.populate(workflow.posts, {path: 'userId'}, function(err, posts) {
+
+   //      	if(err){
+   //          	workflow.outcome.errfor = { error_description: 'populate fail' };
+	  //           return workflow.emit('response');
+			// }
+
+   //          for ( i = 0; i < posts.length ; i++) {
+   //              posts[i].wchars = model.count(posts[i].content);
+
+   //              var uid;
+   //              for (j = 0; j < posts[i].customers.length; j++) {
+   //                  uid = '' + posts[i].customers[j];
+   //                  if (uid === req.user._id) posts[i].granted = true;
+   //              }
+   //          }
+   //          workflow.outcome.posts = posts;
+   //          workflow.outcome.success = true;
+   //          return workflow.emit('response');
+   //      });
+   //  });
 
     workflow.on('response',function(){
         res.send(workflow.outcome);
