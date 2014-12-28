@@ -17,7 +17,7 @@ var paypal = require('./routes/paypal');
 
 var app = express();
 
-mongoose.connect('mongodb://brookliu.net/booklog2');
+mongoose.connect('mongodb://localhost/booklog2');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
