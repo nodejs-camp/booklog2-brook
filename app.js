@@ -17,7 +17,7 @@ var paypal = require('./routes/paypal');
 
 var app = express();
 
-mongoose.connect('mongodb://localhost/booklog2');
+mongoose.connect('mongodb://brookliu.net/booklog2');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -92,7 +92,7 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new FacebookStrategy({
     clientID: '386859244810267',
     clientSecret: '41e0ef2dbfc12b7e997405513e24c3df',
-    callbackURL: "http://54.148.222.139:3000/auth/facebook/callback"
+    callbackURL: "http://brookliu.net:3000/auth/facebook/callback"
   },
   function(accessToken, refreshToken, profile, done) {
    app.db.model.User.findOne({"facebook._json.id": profile._json.id}, function(err, user) {
